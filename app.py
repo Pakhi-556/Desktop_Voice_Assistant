@@ -279,6 +279,7 @@ def get_information():
             
             elif "sing a song" in query:
                 speak('I am sorry for any confusion, but I can just play the song and do not have the ability to sing')
+                done=True
 
             elif 'none' in query:
                 speak("Sorry, I didn't catch that command.")
