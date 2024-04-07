@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant</title>
+    <style>
+        body {
+            font-family: "Pacifico", cursive;
+            font-weight: bold;
+            font-style: inherit;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* to prevent scrolling */
+        }
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            opacity: 0.9;
+        }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0);
+            color: #fff;
+            padding: 10px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: glow 1s ease-in-out infinite alternate;
+            text-shadow: 1px 1px 1px blue, 0 0 0.5em rgba(0,0,255,.671), 0 0 0.5em rgba(1,1,255,.644);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+        }
+        h2{
+           font-size:26px;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7); /* background color with opacity */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0);
+            text-align: center;
+            background: rgba(0, 0, 0, 0);
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        p {
+            margin-bottom: 10px;
+            color: #666;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: "Pacifico", cursive;
+            font-weight: 400;
+            font-style: normal;
+            box-shadow: 0px 0px 2px 2px,white;
+            transition-duration: 0.4s;
+            
+        }
+        button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        #output,#response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgb(216, 214, 214);
+            color: #333;
+            min-height: 50px;
+        }
+        .glow {
+         font-size: 45px;
+         color: white;
+         text-align: center;
+         animation: glow 1s ease-in-out infinite alternate;
+         text-shadow: 1px 1px 1px blue, 0 0 0.5em rgba(0,0,255,.671), 0 0 0.5em rgba(1,1,255,.644);
+}
+
+
+  
+
+    </style>
+</head>
+<body>
+    <div class="navbar"><h2>Zira.. </h2>
+        <button id="loginBtn">Login</button>
+    </div>
+    
+
+    <video autoplay muted loop id="video-background">
+        <source src="{{ url_for('static', filename='backvedio.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+
+    <div class="container">
+        <h1 class="glow">Voice Assistant</h1>
+        <p>Click the button and speak your command:</p>
+        <button href="#" id="startBtn">Start Listening</button>
+        <div id="output"></div>
+        <div id="response" style="display: none;"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            const startListening = () => {
+                $('#output').text('Listening...');
+                recognition.start();
+            };
+
+            $('#startBtn').click(async function() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    startListening();
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Error accessing microphone. Please allow microphone access to use voice recognition.');
+                }
+            });
+
+             // Event listener for Alt + Z key press
+             $(document).keydown(function(e) {
+                if (e.key === 'z') {
+                    $('#startBtn').click();
+                }
+            });
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                $('#output').text('Recognized Command: ' + transcript);
+
+                $.ajax({
+                    url: '/get-information',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ query: transcript }),
+                    success: function(response) {
+                        console.log(response);
+
+                       if(response.response_text!=""){
+                        // Display the response text on the page
+                        $('#response').html('<div class="response-container">'+response.response_text+'</div>');
+                        $('#response').show();
+                       }else{
+                        $('#response').hide();
+                       }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                alert('Speech recognition error. Please try again or allow microphone access.');
+            };
+            
+            $('#loginBtn').click(function() {
+                // Redirect to the login page
+                window.location.href = '/login';
+            });
+
+            // Slowing down the background video playback
+            const video = document.getElementById('video-background');
+            video.playbackRate = 0.4; // Adjust this value as needed
+        });
+    </script>
+</body>
+</html>
