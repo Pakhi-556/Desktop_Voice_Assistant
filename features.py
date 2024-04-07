@@ -6,11 +6,9 @@ import smtplib
 import requests
 import os
 from sk import *
-import re
 import random
 from requests.exceptions import RequestException
 from hugchat import hugchat
-import wikipedia
 from gmail import *
 import sqlite3
 
@@ -78,11 +76,12 @@ def get_weather_info(city=''):
     except KeyboardInterrupt:
         return None
    
-#3 for new api
+#for new api
 def news():
   arr=[] 
 # Define the API endpoint with the provided API key
   api_address="https://newsapi.org/v2/top-headlines?sources=google-news-in&apiKey="+newskey
+
 # Send a GET request to the API endpoint and parse the JSON response
   json_data=requests.get(api_address).json()
 
@@ -200,6 +199,7 @@ def chatBot(query):
     t+=response
     return t
 
+## for generating txt and save in working history
 def ai(prompt):
     t=""
     text = f"AI response of promt : {prompt} \n ******** \n\n"
@@ -217,7 +217,7 @@ def ai(prompt):
         f.write(text)
     return t  
 
-
+## for sending email to everyone that people that are print in your database
 def send_everyone(subject,body):
 
     # Fetch email addresses from the database

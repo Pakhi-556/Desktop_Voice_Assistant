@@ -60,7 +60,7 @@ def get_information():
                 speak("If you talk then definitely your human.")
                 done=True
             elif "why you came to world" in query:
-                speak("Thanks to Gaurav. further It's a secret")
+                speak("Thanks to Pakhi. further It's a secret")
                 done=True
             elif 'reason for you' in query:
                 speak("I was created for human ease ") 
@@ -172,7 +172,7 @@ def get_information():
                     done = True 
 
             #for news
-            elif 'news' in query or 'current affairs' in query:
+            elif 'news' in query or 'current affairs' in query or 'headlines' in query:
               speak(" Sure...., here are some top news")
               arr=news()
               for i in arr:
@@ -278,7 +278,7 @@ def get_information():
                   done = True
             
             elif "sing a song" in query:
-                speak('I am sorry for any confusion, but I am just play the song and do not have the ability to sing')
+                speak('I am sorry for any confusion, but I can just play the song and do not have the ability to sing')
 
             elif 'none' in query:
                 speak("Sorry, I didn't catch that command.")
