@@ -94,6 +94,9 @@ def get_information():
             elif 'your name' in query:
                   speak(name)
 
+            elif "what are you doing" in query:
+                  speak('I am currently available to assist you with any questions or information you might need')      
+
             # Open google
             elif 'open google' in query:
                  if 'search' in query:
